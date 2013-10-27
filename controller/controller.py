@@ -2,9 +2,13 @@
 @author: Anakin
 '''
 
+import wx
+import enum
+
 from model.image import Image
 from view.appFrame import Frame
 from view.appPanel import Panel
+from view.mdfDialog import MdfDialog
 
 from wx.lib.pubsub import Publisher as pub
 
@@ -16,12 +20,25 @@ class Controller:
     ref = 'ref.pgm'
     #default = 'default.pgm'
 
+    choice = None
+
+    opt_01_width    = 60
+    opt_01_height   = 80
+
+    opt_02_width    = 480
+    opt_02_height   = 640
+
     def __init__(self, app):
         self.src_image = Image()
         self.dst_image = None
 
         self.frame = Frame()
         self.panel = Panel(self.frame)
+
+        #self.panel.open.Bind(wx.EVT_BUTTON, self.OnOpen)
+        self.panel.choice.Bind(wx.EVT_CHOICE, self.onChoice)
+        self.panel.go.Bind(wx.EVT_BUTTON, self.onGo)
+        self.panel.mdf_param.Bind(wx.EVT_BUTTON, self.onModify)
 
         pub.subscribe(self.displayLeft, "LEFT IMAGE LOADED")
         pub.subscribe(self.displayRight, "RIGHT IMAGE CHANGED")
@@ -30,14 +47,63 @@ class Controller:
         self.loadLeft(self.dir + self.src)
 
         ''' Shrink left image to 60x80 and display on the right '''
-        self.shrinkRight(self.dir + self.dst)
+        #self.shrinkRight(self.dir + self.dst)
 
         self.frame.Show(True)
+
+    def onChoice(self, event):
+        self.choice = event.GetString()
+        print("choose: %s" % self.choice)
+
+    def onGo(self, event):
+        if self.choice == enum.OPT_01_SHRINK:
+            print enum.OPT_01_SHRINK
+            self.shrinkRight(self.dir + self.dst)
+        elif self.choice == enum.OPT_02_ZOOM_OUT:
+            print enum.OPT_02_ZOOM_OUT
+        elif self.choice == enum.OPT_03_REDUCE_GL:
+            print enum.OPT_03_REDUCE_GL
+        elif self.choice == enum.OPT_04_TRANSFORM:
+            print enum.OPT_04_TRANSFORM
+        elif self.choice == enum.OPT_05_HISTO_EQ:
+            print enum.OPT_05_HISTO_EQ
+        elif self.choice == enum.OPT_06_HISTO_MAT:
+            print enum.OPT_06_HISTO_MAT
+        else:
+            print "Do nothing"
+
+    def onModify(self, event):
+        if self.choice is not None:
+            useMetal = False
+            if 'wxMac' in wx.PlatformInfo:
+                useMetal = self.cb.IsChecked()
+
+            dlg = MdfDialog(self.panel, -1, self.choice, size=(350, 200),
+                            style=wx.DEFAULT_DIALOG_STYLE,
+                            useMetal=useMetal)
+            dlg.CenterOnScreen()
+
+            val = dlg.ShowModal()
+            if val == wx.ID_OK:
+                if self.choice == enum.OPT_01_SHRINK:
+                    self.opt_01_width   = int(dlg.opt_01_text1.GetValue())
+                    self.opt_01_height  = int(dlg.opt_01_text2.GetValue())
+                elif self.choice == enum.OPT_02_ZOOM_OUT:
+                    self.opt_02_width   = int(dlg.opt_02_text1.GetValue())
+                    self.opt_02_height  = int(dlg.opt_02_text2.GetValue())
+            else:
+                print "Cancelled..."
+
+            dlg.Destroy()
+        else:
+            print "Not exist"
+
 
     def loadLeft(self, path):
         self.src_image.readContent(path)
         self.src_image.loadLeft(self.src_image,
-                                480, 640,
+                                enum.DEFAULT_WIDTH,
+                                enum.DEFAULT_HEIGHT,
                                 self.dir + self.tmp)
 
     def shrinkRight(self, path):
@@ -47,7 +113,8 @@ class Controller:
                                self.src_image.maxV,
                                self.src_image.pixel)
         self.dst_image.shrinkRight(self.dst_image,
-                                   60, 80,
+                                   self.opt_01_width,
+                                   self.opt_01_height,
                                    path)
 
     def displayLeft(self, message):
