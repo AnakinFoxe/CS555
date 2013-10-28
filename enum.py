@@ -12,7 +12,7 @@ DEFAULT_WIDTH_MIN   = 60
 DEFAULT_HEIGHT_MIN  = 80
 
 OPT_01_SHRINK       = 'Shrink'
-OPT_02_ZOOM_OUT     = 'Zoom Out'
+OPT_02_ZOOM_OUT     = 'Zoom Back'
 OPT_03_REDUCE_GL    = 'Reduce Gray Level'
 OPT_04_TRANSFORM    = 'Transform'
 OPT_05_HISTO_EQ     = 'Histogram EQ'
@@ -24,4 +24,8 @@ CHOICE_LIST         = [OPT_01_SHRINK,
                        OPT_04_TRANSFORM,
                        OPT_05_HISTO_EQ,
                        OPT_06_HISTO_MAT]
+
+ZOOM_REPLIC         = 'Replication Method'
+ZOOM_NEAR_NGHR      = 'Nearest Neighbor'
+ZOOM_BILINEAR       = 'Bilinear Interpolation'
 

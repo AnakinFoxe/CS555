@@ -53,7 +53,7 @@ class MdfDialog(wx.Dialog):
         self.sizer_main.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         box = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(self, -1, "Width")
+        label = wx.StaticText(self, -1, "Shrink2Width")
         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.opt_01_text1 = wx.TextCtrl(self, -1, str(enum.DEFAULT_WIDTH_MIN), size=(80,-1))
         box.Add(self.opt_01_text1, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
@@ -61,7 +61,7 @@ class MdfDialog(wx.Dialog):
         self.sizer_main.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
         box = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(self, -1, "Height")
+        label = wx.StaticText(self, -1, "Shrink2Height")
         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.opt_01_text2 = wx.TextCtrl(self, -1, str(enum.DEFAULT_HEIGHT_MIN), size=(80,-1))
         box.Add(self.opt_01_text2, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
@@ -69,11 +69,11 @@ class MdfDialog(wx.Dialog):
         self.sizer_main.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
     def opt02ZoomOut(self):
-        label = wx.StaticText(self, -1, "Zoom Out Operation")
+        label = wx.StaticText(self, -1, "Zoom Back Operation")
         self.sizer_main.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         box = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(self, -1, "Width")
+        label = wx.StaticText(self, -1, "Shrink2Width")
         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.opt_02_text1 = wx.TextCtrl(self, -1, str(enum.DEFAULT_WIDTH_MIN), size=(80,-1))
         box.Add(self.opt_02_text1, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
@@ -81,10 +81,23 @@ class MdfDialog(wx.Dialog):
         self.sizer_main.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
         box = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(self, -1, "Height")
+        label = wx.StaticText(self, -1, "Shrink2Height")
         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.opt_02_text2 = wx.TextCtrl(self, -1, str(enum.DEFAULT_HEIGHT_MIN), size=(80,-1))
         box.Add(self.opt_02_text2, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         self.sizer_main.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+        choice_title = wx.StaticBox(self, -1, "")
+        sizer_choice = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
+
+        self.opt_02_choice1 = wx.RadioButton(self, -1, enum.ZOOM_REPLIC)
+        self.opt_02_choice2 = wx.RadioButton(self, -1, enum.ZOOM_NEAR_NGHR)
+        self.opt_02_choice3 = wx.RadioButton(self, -1, enum.ZOOM_BILINEAR)
+
+        sizer_choice.Add(self.opt_02_choice1, wx.ALIGN_LEFT)
+        sizer_choice.Add(self.opt_02_choice2, wx.ALIGN_LEFT)
+        sizer_choice.Add(self.opt_02_choice3, wx.ALIGN_LEFT)
+
+        self.sizer_main.Add(sizer_choice, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 

@@ -13,10 +13,11 @@ from view.mdfDialog import MdfDialog
 from wx.lib.pubsub import Publisher as pub
 
 class Controller:
-    dir = 'C:\Work\Python\workspace\CS555\\'
+    dir = 'C:\Users\Anakin\Documents\GitHub\CS555\\'
     src = 'src_ascii.pgm'
     dst = 'dst.pgm'
     tmp = 'tmp.pgm'
+    tmp2 = 'tmp2.pgm'
     ref = 'ref.pgm'
     #default = 'default.pgm'
 
@@ -25,8 +26,9 @@ class Controller:
     opt_01_width    = 60
     opt_01_height   = 80
 
-    opt_02_width    = 480
-    opt_02_height   = 640
+    opt_02_width    = 60
+    opt_02_height   = 80
+    opt_02_selection= enum.ZOOM_BILINEAR
 
     def __init__(self, app):
         self.src_image = Image()
@@ -61,6 +63,7 @@ class Controller:
             self.shrinkRight(self.dir + self.dst)
         elif self.choice == enum.OPT_02_ZOOM_OUT:
             print enum.OPT_02_ZOOM_OUT
+            self.zoomBackRight(self.dir + self.dst)
         elif self.choice == enum.OPT_03_REDUCE_GL:
             print enum.OPT_03_REDUCE_GL
         elif self.choice == enum.OPT_04_TRANSFORM:
@@ -91,6 +94,13 @@ class Controller:
                 elif self.choice == enum.OPT_02_ZOOM_OUT:
                     self.opt_02_width   = int(dlg.opt_02_text1.GetValue())
                     self.opt_02_height  = int(dlg.opt_02_text2.GetValue())
+                    if dlg.opt_02_choice1.GetValue() is True:
+                        self.opt_02_selection = enum.ZOOM_REPLIC
+                    elif dlg.opt_02_choice2.GetValue() is True:
+                        self.opt_02_selection = enum.ZOOM_NEAR_NGHR
+                    elif dlg.opt_02_choice3.GetValue() is True:
+                        self.opt_02_selection = enum.ZOOM_BILINEAR
+                    print self.opt_02_selection
             else:
                 print "Cancelled..."
 
@@ -116,6 +126,21 @@ class Controller:
                                    self.opt_01_width,
                                    self.opt_01_height,
                                    path)
+
+    def zoomBackRight(self, path):
+        self.dst_image = Image(self.src_image.magic_word,
+                               self.src_image.width,
+                               self.src_image.height,
+                               self.src_image.maxV,
+                               self.src_image.pixel)
+        self.dst_image.zoomBack(self.dst_image,
+                                self.opt_02_selection,
+                                self.opt_02_width,
+                                self.opt_02_height,
+                                self.dir + self.tmp2,
+                                enum.DEFAULT_WIDTH,
+                                enum.DEFAULT_HEIGHT,
+                                path)
 
     def displayLeft(self, message):
         self.panel.setLeftImage(message.data)
