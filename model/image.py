@@ -3,6 +3,7 @@
 '''
 
 import enum
+import math
 
 from wx.lib.pubsub import Publisher as pub
 
@@ -318,6 +319,250 @@ class Image():
                       dst_maxV,
                       dst_pixel)
         self.writeContent(path)
+
+    def restoreImage_Arithmetic(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                pixel_value = 0
+                for x in square_mask:
+                    pixel_value += x
+                pixel_value /= len(square_mask)
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_Geometric(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                pixel_value = 1
+                for x in square_mask:
+                    pixel_value *= x
+                pixel_value = int(math.pow(pixel_value, float(1) / (resolution * resolution)))
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_Harmonic(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                pixel_value = 0
+                for x in square_mask:
+                    pixel_value += float(1) / x
+                pixel_value = (resolution * resolution) / pixel_value
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_ContraHarmonic(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        q = 1
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                numerator = 0
+                denominator = 0
+                for x in square_mask:
+                    numerator += math.pow(x, q+1)
+                    denominator += math.pow(x, q)
+                pixel_value = numerator / denominator
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_Max(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                sorted_square_mask = sorted(square_mask)
+                pixel_value = sorted_square_mask[len(sorted_square_mask)-1]
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_Min(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                sorted_square_mask = sorted(square_mask)
+                pixel_value = sorted_square_mask[0]
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_Midpoint(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                sorted_square_mask = sorted(square_mask)
+                pixel_value = (sorted_square_mask[0]
+                            + sorted_square_mask[len(sorted_square_mask)-1]) / 2
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage_AlphaTrim(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        d = 2
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                sorted_square_mask = sorted(square_mask)
+                pixel_value = 0
+                for x in range(d/2, len(sorted_square_mask)-d/2):
+                    pixel_value += sorted_square_mask[x]
+                pixel_value /= len(sorted_square_mask) - d
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def restoreImage(self, src_image, selection, resolution, path):
+        if selection == enum.RESTORE_ARITHMETIC:
+            self.restoreImage_Arithmetic(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_GEOMETRIC:
+            self.restoreImage_Geometric(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_HARMONIC:
+            self.restoreImage_Harmonic(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_CONTRAHARM:
+            self.restoreImage_ContraHarmonic(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_MAX:
+            self.restoreImage_Max(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_MIN:
+            self.restoreImage_Min(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_MIDPOINT:
+            self.restoreImage_Midpoint(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.RESTORE_ALPHA_TRIM:
+            self.restoreImage_AlphaTrim(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
 
     def bitPlane(self, src_image, bits, path):
         dst_width = src_image.width

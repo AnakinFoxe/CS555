@@ -35,6 +35,9 @@ class Controller:
 
     opt_08_bits         = 64 # top 3 set to zero
 
+    opt_09_resolution   = enum.DEFAULT_RESLTN_MIN
+    opt_09_selection    = enum.RESTORE_ARITHMETIC
+
     def __init__(self, app):
         self.src_image = Image()
         self.dst_image = None
@@ -88,6 +91,7 @@ class Controller:
             self.bitPlaneRight(self.dir + self.dst)
         elif self.choice == enum.OPT_09_RESTORE:
             print enum.OPT_09_RESTORE
+            self.restoreImage(self.dir + self.dst)
         else:
             print "Do nothing"
 
@@ -147,6 +151,25 @@ class Controller:
                     if dlg.opt_08_check8.GetValue() is True:
                         self.opt_08_bits |= 1 << 7
                     print self.opt_08_bits
+                elif self.choice == enum.OPT_09_RESTORE:
+                    self.opt_09_resolution = int(dlg.opt_09_text1.GetValue())
+                    if dlg.opt_09_choice1.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_ARITHMETIC
+                    elif dlg.opt_09_choice2.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_GEOMETRIC
+                    elif dlg.opt_09_choice3.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_HARMONIC
+                    elif dlg.opt_09_choice4.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_CONTRAHARM
+                    elif dlg.opt_09_choice5.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_MAX
+                    elif dlg.opt_09_choice6.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_MIN
+                    elif dlg.opt_09_choice7.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_MIDPOINT
+                    elif dlg.opt_09_choice8.GetValue() is True:
+                        self.opt_09_selection = enum.RESTORE_ALPHA_TRIM
+                    print self.opt_09_selection
             else:
                 print "Cancelled..."
 
@@ -163,22 +186,12 @@ class Controller:
                                 self.dir + self.tmp)
 
     def shrinkRight(self, path):
-        """self.dst_image = Image(self.src_image.magic_word,
-                               self.src_image.width,
-                               self.src_image.height,
-                               self.src_image.maxV,
-                               self.src_image.pixel)"""
         self.dst_image.shrinkRight(self.dst_image,
                                    self.opt_01_width,
                                    self.opt_01_height,
                                    path)
 
     def zoomBackRight(self, path):
-        """self.dst_image = Image(self.src_image.magic_word,
-                               self.src_image.width,
-                               self.src_image.height,
-                               self.src_image.maxV,
-                               self.src_image.pixel)"""
         self.dst_image.zoomBack(self.dst_image,
                                 self.opt_02_selection,
                                 self.opt_02_width,
@@ -189,11 +202,6 @@ class Controller:
                                 path)
 
     def spatialFilterRight(self, path):
-        """self.dst_image = Image(self.src_image.magic_word,
-                               self.src_image.width,
-                               self.src_image.height,
-                               self.src_image.maxV,
-                               self.src_image.pixel)"""
         self.dst_image.spatialFilter(self.src_image,
                                      self.opt_07_selection,
                                      self.opt_07_resolution,
@@ -203,6 +211,12 @@ class Controller:
         self.dst_image.bitPlane(self.src_image,
                                 self.opt_08_bits,
                                 path)
+
+    def restoreImage(self, path):
+        self.dst_image.restoreImage(self.src_image,
+                                    self.opt_09_selection,
+                                    self.opt_09_resolution,
+                                    path)
 
     def displayLeft(self, message):
         self.panel.setLeftImage(message.data)
