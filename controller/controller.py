@@ -23,12 +23,17 @@ class Controller:
 
     choice = None
 
-    opt_01_width    = 60
-    opt_01_height   = 80
+    opt_01_width        = enum.DEFAULT_WIDTH_MIN
+    opt_01_height       = enum.DEFAULT_HEIGHT_MIN
 
-    opt_02_width    = 60
-    opt_02_height   = 80
-    opt_02_selection= enum.ZOOM_BILINEAR
+    opt_02_width        = enum.DEFAULT_WIDTH_MIN
+    opt_02_height       = enum.DEFAULT_HEIGHT_MIN
+    opt_02_selection    = enum.ZOOM_BILINEAR
+
+    opt_07_resolution   = enum.DEFAULT_RESLTN_MIN
+    opt_07_selection    = enum.SP_FLT_SMOOTH
+
+    opt_08_bits         = 64 # top 3 set to zero
 
     def __init__(self, app):
         self.src_image = Image()
@@ -48,8 +53,11 @@ class Controller:
         ''' Load left image '''
         self.loadLeft(self.dir + self.src)
 
-        ''' Shrink left image to 60x80 and display on the right '''
-        #self.shrinkRight(self.dir + self.dst)
+        self.dst_image = Image(self.src_image.magic_word,
+                               self.src_image.width,
+                               self.src_image.height,
+                               self.src_image.maxV,
+                               self.src_image.pixel)
 
         self.frame.Show(True)
 
@@ -61,8 +69,8 @@ class Controller:
         if self.choice == enum.OPT_01_SHRINK:
             print enum.OPT_01_SHRINK
             self.shrinkRight(self.dir + self.dst)
-        elif self.choice == enum.OPT_02_ZOOM_OUT:
-            print enum.OPT_02_ZOOM_OUT
+        elif self.choice == enum.OPT_02_ZOOM_BACK:
+            print enum.OPT_02_ZOOM_BACK
             self.zoomBackRight(self.dir + self.dst)
         elif self.choice == enum.OPT_03_REDUCE_GL:
             print enum.OPT_03_REDUCE_GL
@@ -72,6 +80,14 @@ class Controller:
             print enum.OPT_05_HISTO_EQ
         elif self.choice == enum.OPT_06_HISTO_MAT:
             print enum.OPT_06_HISTO_MAT
+        elif self.choice == enum.OPT_07_SPATIAL_FLT:
+            print enum.OPT_07_SPATIAL_FLT
+            self.spatialFilterRight(self.dir + self.dst)
+        elif self.choice == enum.OPT_08_BIT_PLANE:
+            print enum.OPT_08_BIT_PLANE
+            self.bitPlaneRight(self.dir + self.dst)
+        elif self.choice == enum.OPT_09_RESTORE:
+            print enum.OPT_09_RESTORE
         else:
             print "Do nothing"
 
@@ -91,7 +107,7 @@ class Controller:
                 if self.choice == enum.OPT_01_SHRINK:
                     self.opt_01_width   = int(dlg.opt_01_text1.GetValue())
                     self.opt_01_height  = int(dlg.opt_01_text2.GetValue())
-                elif self.choice == enum.OPT_02_ZOOM_OUT:
+                elif self.choice == enum.OPT_02_ZOOM_BACK:
                     self.opt_02_width   = int(dlg.opt_02_text1.GetValue())
                     self.opt_02_height  = int(dlg.opt_02_text2.GetValue())
                     if dlg.opt_02_choice1.GetValue() is True:
@@ -101,6 +117,36 @@ class Controller:
                     elif dlg.opt_02_choice3.GetValue() is True:
                         self.opt_02_selection = enum.ZOOM_BILINEAR
                     print self.opt_02_selection
+                elif self.choice == enum.OPT_07_SPATIAL_FLT:
+                    self.opt_07_resolution = int(dlg.opt_07_text1.GetValue())
+                    if dlg.opt_07_choice1.GetValue() is True:
+                        self.opt_07_selection = enum.SP_FLT_SMOOTH
+                    elif dlg.opt_07_choice2.GetValue() is True:
+                        self.opt_07_selection = enum.SP_FLT_MEDIAN
+                    elif dlg.opt_07_choice3.GetValue() is True:
+                        self.opt_07_selection = enum.SP_FLT_LAPLACIAN
+                    elif dlg.opt_07_choice4.GetValue() is True:
+                        self.opt_07_selection = enum.SP_FLT_H_BOOST
+                    print self.opt_07_selection
+                elif self.choice == enum.OPT_08_BIT_PLANE:
+                    self.opt_08_bits = 0
+                    if dlg.opt_08_check1.GetValue() is True:
+                        self.opt_08_bits |= 1
+                    if dlg.opt_08_check2.GetValue() is True:
+                        self.opt_08_bits |= 1 << 1
+                    if dlg.opt_08_check3.GetValue() is True:
+                        self.opt_08_bits |= 1 << 2
+                    if dlg.opt_08_check4.GetValue() is True:
+                        self.opt_08_bits |= 1 << 3
+                    if dlg.opt_08_check5.GetValue() is True:
+                        self.opt_08_bits |= 1 << 4
+                    if dlg.opt_08_check6.GetValue() is True:
+                        self.opt_08_bits |= 1 << 5
+                    if dlg.opt_08_check7.GetValue() is True:
+                        self.opt_08_bits |= 1 << 6
+                    if dlg.opt_08_check8.GetValue() is True:
+                        self.opt_08_bits |= 1 << 7
+                    print self.opt_08_bits
             else:
                 print "Cancelled..."
 
@@ -117,22 +163,22 @@ class Controller:
                                 self.dir + self.tmp)
 
     def shrinkRight(self, path):
-        self.dst_image = Image(self.src_image.magic_word,
+        """self.dst_image = Image(self.src_image.magic_word,
                                self.src_image.width,
                                self.src_image.height,
                                self.src_image.maxV,
-                               self.src_image.pixel)
+                               self.src_image.pixel)"""
         self.dst_image.shrinkRight(self.dst_image,
                                    self.opt_01_width,
                                    self.opt_01_height,
                                    path)
 
     def zoomBackRight(self, path):
-        self.dst_image = Image(self.src_image.magic_word,
+        """self.dst_image = Image(self.src_image.magic_word,
                                self.src_image.width,
                                self.src_image.height,
                                self.src_image.maxV,
-                               self.src_image.pixel)
+                               self.src_image.pixel)"""
         self.dst_image.zoomBack(self.dst_image,
                                 self.opt_02_selection,
                                 self.opt_02_width,
@@ -140,6 +186,22 @@ class Controller:
                                 self.dir + self.tmp2,
                                 enum.DEFAULT_WIDTH,
                                 enum.DEFAULT_HEIGHT,
+                                path)
+
+    def spatialFilterRight(self, path):
+        """self.dst_image = Image(self.src_image.magic_word,
+                               self.src_image.width,
+                               self.src_image.height,
+                               self.src_image.maxV,
+                               self.src_image.pixel)"""
+        self.dst_image.spatialFilter(self.src_image,
+                                     self.opt_07_selection,
+                                     self.opt_07_resolution,
+                                     path)
+
+    def bitPlaneRight(self, path):
+        self.dst_image.bitPlane(self.src_image,
+                                self.opt_08_bits,
                                 path)
 
     def displayLeft(self, message):

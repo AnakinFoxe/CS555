@@ -183,6 +183,176 @@ class Image():
                       dst_pixel)
         self.writeContent(path)
 
+    def genSquareMask(self, width, height, h, w, pixel, sft):
+        square_mask = []
+        for i in range(-sft, sft+1):
+            for j in range(-sft, sft+1):
+                x = h + i
+                y = w + j
+                if x < 0: x = 0
+                if x >= height: x = height - 1
+                if y < 0: y = 0
+                if y >= width: y = width - 1
+                square_mask.append(pixel[x][y])
+        return square_mask
+
+    def spatialFilter_Smooth(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                pixel_value = 0
+                for x in square_mask:
+                    pixel_value += x
+                pixel_value /= len(square_mask)
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def spatialFilter_Median(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                sorted_square_mask = sorted(square_mask)
+                pixel_value = sorted_square_mask[int(len(square_mask)/2)]
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def spatialFilter_Laplacian(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        lap1 = [0, 1, 0,
+                1,-4, 1,
+                0, 1, 0]
+        lap2 = [1, 1, 1,
+                1,-8, 1,
+                1, 1, 1]
+        lap3 = [0,-1, 0,
+                -1,4,-1,
+                0,-1, 0]
+        lap4 = [-1,-1,-1,
+                -1, 8,-1,
+                -1,-1,-1]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                pixel_value = 0
+                for x in range(len(square_mask)):
+                    pixel_value += lap4[x] * square_mask[x]
+                dst_pixel[h][w] = pixel_value
+                if dst_maxV < pixel_value: dst_maxV = pixel_value
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def spatialFilter_HighBoost(self, src_image, resolution, path):
+        sft = int(resolution / 2)
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        gaussian = [1, 2, 1,
+                    2, 4, 2,
+                    1, 2, 1]
+        k = 2
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width,
+                                                 dst_height,
+                                                 h, w,
+                                                 src_image.pixel, sft)
+                pixel_value = 0
+                for x in range(len(square_mask)):
+                    pixel_value += gaussian[x] * square_mask[x]
+                pixel_value /= 16
+                dst_pixel[h][w] = src_image.pixel[h][w] * (k + 1) - k * pixel_value
+                if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def bitPlane(self, src_image, bits, path):
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = src_image.pixel[h][w] & bits
+                if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+        pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
+
+    def spatialFilter(self, src_image, selection, resolution, path):
+        if selection == enum.SP_FLT_SMOOTH:
+            self.spatialFilter_Smooth(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.SP_FLT_MEDIAN:
+            self.spatialFilter_Median(src_image, resolution, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.SP_FLT_LAPLACIAN:
+            self.spatialFilter_Laplacian(src_image, 3, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.SP_FLT_H_BOOST:
+            self.spatialFilter_HighBoost(src_image, 3, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
     def zoomBack(self, src_image, selection,
                 in_width, in_height, in_path,
                 out_width, out_height, out_path):
@@ -198,11 +368,11 @@ class Image():
             self.zoomBack_Bilinear(self, out_width, out_height, out_path)
             pub.sendMessage("RIGHT IMAGE CHANGED", out_path)
 
-    def loadLeft(self, src_image, dst_width, dst_height, path):
-        self.shrink(src_image, dst_width, dst_height, path)
-        pub.sendMessage("LEFT IMAGE LOADED", path)
-
     def shrinkRight(self, src_image, dst_width, dst_height, path):
         self.shrink(src_image, dst_width, dst_height, path)
         pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
+    def loadLeft(self, src_image, dst_width, dst_height, path):
+        self.shrink(src_image, dst_width, dst_height, path)
+        pub.sendMessage("LEFT IMAGE LOADED", path)
 
