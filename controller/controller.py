@@ -30,6 +30,13 @@ class Controller:
     opt_02_height       = enum.DEFAULT_HEIGHT_MIN
     opt_02_selection    = enum.ZOOM_BILINEAR
 
+    opt_03_gray_lvl     = enum.DEFAULT_GRAY_LEVEL
+    opt_03_sgn          = enum.DEFAULT_SIGN
+
+    opt_04_selection    = enum.DEFAULT_TRANS
+    opt_04_c            = enum.DEFAULT_C
+    opt_04_gamma        = enum.DEFAULT_GAMMA
+
     opt_07_resolution   = enum.DEFAULT_RESLTN_MIN
     opt_07_selection    = enum.SP_FLT_SMOOTH
 
@@ -56,12 +63,6 @@ class Controller:
         ''' Load left image '''
         self.loadLeft(self.dir + self.src)
 
-        self.dst_image = Image(self.src_image.magic_word,
-                               self.src_image.width,
-                               self.src_image.height,
-                               self.src_image.maxV,
-                               self.src_image.pixel)
-
         self.frame.Show(True)
 
     def onChoice(self, event):
@@ -77,8 +78,10 @@ class Controller:
             self.zoomBackRight(self.dir + self.dst)
         elif self.choice == enum.OPT_03_REDUCE_GL:
             print enum.OPT_03_REDUCE_GL
+            self.reduceGrayLevel(self.dir + self.dst)
         elif self.choice == enum.OPT_04_TRANSFORM:
             print enum.OPT_04_TRANSFORM
+            self.transform(self.dir + self.dst)
         elif self.choice == enum.OPT_05_HISTO_EQ:
             print enum.OPT_05_HISTO_EQ
         elif self.choice == enum.OPT_06_HISTO_MAT:
@@ -121,6 +124,31 @@ class Controller:
                     elif dlg.opt_02_choice3.GetValue() is True:
                         self.opt_02_selection = enum.ZOOM_BILINEAR
                     print self.opt_02_selection
+                elif self.choice == enum.OPT_03_REDUCE_GL:
+                    self.opt_03_gray_lvl = int(dlg.opt_03_text1.GetValue())
+                    if self.opt_03_gray_lvl < 1:
+                        self.opt_03_gray_lvl = 1
+                    elif self.opt_03_gray_lvl > 8:
+                        self.opt_03_gray_lvl = 8
+                    if dlg.opt_03_choice1.GetValue() is True:
+                        self.opt_03_sgn = enum.REDUCE_GL_LEAST
+                    elif dlg.opt_03_choice2.GetValue() is True:
+                        self.opt_03_sgn = enum.REDUCE_GL_MOST
+                    print("%s %d" % (self.opt_03_sgn, self.opt_03_gray_lvl))
+                elif self.choice == enum.OPT_04_TRANSFORM:
+                    if dlg.opt_04_choice1.GetValue() is True:
+                        self.opt_04_selection = enum.TRANS_LOG
+                        self.opt_04_c = float(dlg.opt_04_text1.GetValue())
+                        print("%s %d %d" % (self.opt_04_selection,
+                                        self.opt_04_c,
+                                        self.opt_04_gamma))
+                    elif dlg.opt_04_choice2.GetValue() is True:
+                        self.opt_04_selection = enum.TRANS_POW
+                        self.opt_04_c = float(dlg.opt_04_text2.GetValue())
+                        self.opt_04_gamma = float(dlg.opt_04_text3.GetValue())
+                        print("%s %d %d" % (self.opt_04_selection,
+                                        self.opt_04_c,
+                                        self.opt_04_gamma))
                 elif self.choice == enum.OPT_07_SPATIAL_FLT:
                     self.opt_07_resolution = int(dlg.opt_07_text1.GetValue())
                     if dlg.opt_07_choice1.GetValue() is True:
@@ -185,13 +213,24 @@ class Controller:
                                 enum.DEFAULT_HEIGHT,
                                 self.dir + self.tmp)
 
+    def reload(self):
+        if self.dst_image is None:
+            self.dst_image = Image()
+        self.dst_image.__init__(self.src_image.magic_word,
+                                self.src_image.width,
+                                self.src_image.height,
+                                self.src_image.maxV,
+                                self.src_image.pixel)
+
     def shrinkRight(self, path):
+        self.reload(self.src_image, self.dst_image)
         self.dst_image.shrinkRight(self.dst_image,
                                    self.opt_01_width,
                                    self.opt_01_height,
                                    path)
 
     def zoomBackRight(self, path):
+        self.reload(self.src_image, self.dst_image)
         self.dst_image.zoomBack(self.dst_image,
                                 self.opt_02_selection,
                                 self.opt_02_width,
@@ -201,19 +240,37 @@ class Controller:
                                 enum.DEFAULT_HEIGHT,
                                 path)
 
+    def reduceGrayLevel(self, path):
+        self.reload()
+        self.dst_image.reduceGrayLevel(self.dst_image,
+                                       self.opt_03_gray_lvl,
+                                       self.opt_03_sgn,
+                                       path)
+
+    def transform(self, path):
+        self.reload()
+        self.dst_image.transform(self.src_image,
+                                 self.opt_04_selection,
+                                 self.opt_04_c,
+                                 self.opt_04_gamma,
+                                 path)
+
     def spatialFilterRight(self, path):
-        self.dst_image.spatialFilter(self.src_image,
+        self.reload()
+        self.dst_image.spatialFilter(self.dst_image,
                                      self.opt_07_selection,
                                      self.opt_07_resolution,
                                      path)
 
     def bitPlaneRight(self, path):
-        self.dst_image.bitPlane(self.src_image,
+        self.reload()
+        self.dst_image.bitPlane(self.dst_image,
                                 self.opt_08_bits,
                                 path)
 
     def restoreImage(self, path):
-        self.dst_image.restoreImage(self.src_image,
+        self.reload()
+        self.dst_image.restoreImage(self.dst_image,
                                     self.opt_09_selection,
                                     self.opt_09_resolution,
                                     path)

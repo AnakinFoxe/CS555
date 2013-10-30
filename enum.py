@@ -5,14 +5,6 @@
 WINDOW_TITLE        = "Digital Image Processing (CS 555)"
 WINDOW_SIZE         = (1000, 740)
 
-DEFAULT_WIDTH       = 480
-DEFAULT_HEIGHT      = 640
-
-DEFAULT_WIDTH_MIN   = 60
-DEFAULT_HEIGHT_MIN  = 80
-
-DEFAULT_RESLTN_MIN  = 3
-
 OPT_01_SHRINK       = 'Shrink'
 OPT_02_ZOOM_BACK    = 'Zoom Back'
 OPT_03_REDUCE_GL    = 'Reduce Gray Level'
@@ -37,6 +29,12 @@ ZOOM_REPLIC         = 'Replication Method'
 ZOOM_NEAR_NGHR      = 'Nearest Neighbor'
 ZOOM_BILINEAR       = 'Bilinear Interpolation'
 
+REDUCE_GL_LEAST     = 'Reduce GL Least Sgn First'
+REDUCE_GL_MOST      = 'Reduce GL Most Sgn First '
+
+TRANS_LOG           = 'Log Transformation'
+TRANS_POW           = 'Power Transformation'
+
 SP_FLT_SMOOTH       = 'Smooth Filter'
 SP_FLT_MEDIAN       = 'Median Filter'
 SP_FLT_LAPLACIAN    = 'Sharpening Laplacian'
@@ -50,3 +48,22 @@ RESTORE_MAX         = 'Max'
 RESTORE_MIN         = 'Min'
 RESTORE_MIDPOINT    = 'Midpoint'
 RESTORE_ALPHA_TRIM  = 'Alpha-trimmed Mean'
+
+
+
+DEFAULT_WIDTH       = 480
+DEFAULT_HEIGHT      = 640
+
+DEFAULT_WIDTH_MIN   = 60
+DEFAULT_HEIGHT_MIN  = 80
+
+DEFAULT_GRAY_LEVEL  = 4 # 4bits
+DEFAULT_SIGN        = REDUCE_GL_LEAST # Least first
+
+DEFAULT_TRANS       = TRANS_LOG
+DEFAULT_C           = 2
+DEFAULT_GAMMA       = 1.5
+
+DEFAULT_RESLTN_MIN  = 3
+
+

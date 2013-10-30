@@ -66,6 +66,26 @@ class Image():
             f.write(s)
             #pub.sendMessage("IMAGE SAVED", path)
 
+    def genSquareMask(self, width, height, h, w, pixel, sft):
+        square_mask = []
+        for i in range(-sft, sft+1):
+            for j in range(-sft, sft+1):
+                x = h + i
+                y = w + j
+                if x < 0: x = 0
+                if x >= height: x = height - 1
+                if y < 0: y = 0
+                if y >= width: y = width - 1
+                square_mask.append(pixel[x][y])
+        return square_mask
+
+    def probability_count(self, width, height, pixel):
+        prob = [0 for w in range(255)]
+        for h in range(height):
+            for w in range(width):
+                prob[pixel[h][w]] += 1
+        return prob
+
     def genDefault(self, dst_width, dst_height, path):
         maxV = 55
         dst_pixel = [[maxV for w in xrange(dst_width)] for h in xrange(dst_height)]
@@ -184,18 +204,86 @@ class Image():
                       dst_pixel)
         self.writeContent(path)
 
-    def genSquareMask(self, width, height, h, w, pixel, sft):
-        square_mask = []
-        for i in range(-sft, sft+1):
-            for j in range(-sft, sft+1):
-                x = h + i
-                y = w + j
-                if x < 0: x = 0
-                if x >= height: x = height - 1
-                if y < 0: y = 0
-                if y >= width: y = width - 1
-                square_mask.append(pixel[x][y])
-        return square_mask
+    def reduceGrayLevel_Least(self, src_image, gray_lvl, path):
+        src_pixel = src_image.pixel
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = src_pixel[h][w] >> (8 - gray_lvl)
+                if dst_maxV < dst_pixel[h][w]:
+                    dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def reduceGrayLevel_Most(self, src_image, gray_lvl, path):
+        src_pixel = src_image.pixel
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = src_pixel[h][w] & (1 << gray_lvl)
+                if dst_maxV < dst_pixel[h][w]:
+                    dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def transform_Log(self, src_image, c, path):
+        src_pixel = src_image.pixel
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = int(c * math.log(1 + src_pixel[h][w], 2) * 255 / math.log(256, 2))
+                if dst_maxV < dst_pixel[h][w]:
+                    dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def transform_Pow(self, src_image, c, gamma, path):
+        src_pixel = src_image.pixel
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = int(c * math.pow(src_pixel[h][w], gamma) * 255 / math.pow(255, gamma))
+                if dst_maxV < dst_pixel[h][w]:
+                    dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
 
     def spatialFilter_Smooth(self, src_image, resolution, path):
         sft = int(resolution / 2)
@@ -596,6 +684,24 @@ class Image():
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
         elif selection == enum.SP_FLT_H_BOOST:
             self.spatialFilter_HighBoost(src_image, 3, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
+    def transform(self, src_image, selection, c, gamma, path):
+        print("transform")
+        if selection == enum.TRANS_LOG:
+            self.transform_Log(src_image, c, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.TRANS_POW:
+            self.transform_Pow(src_image, c, gamma, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
+    def reduceGrayLevel(self, src_image, gray_lvl, sgn, path):
+        print("reduceGrayLevel: %s GL: %d" % (sgn, gray_lvl))
+        if sgn == enum.REDUCE_GL_LEAST:
+            self.reduceGrayLevel_Least(src_image, gray_lvl, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif sgn == enum.REDUCE_GL_MOST:
+            self.reduceGrayLevel_Most(src_image, gray_lvl, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
 
     def zoomBack(self, src_image, selection,
