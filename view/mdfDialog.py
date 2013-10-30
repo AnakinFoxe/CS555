@@ -33,6 +33,8 @@ class MdfDialog(wx.Dialog):
             self.opt04transform()
         elif title == enum.OPT_05_HISTO_EQ:
             self.opt05histogramEQ()
+        elif title == enum.OPT_06_HISTO_MAT:
+            self.opt06histogramMatch()
         elif title == enum.OPT_07_SPATIAL_FLT:
             self.opt07SpatialFilter()
         elif title == enum.OPT_08_BIT_PLANE:
@@ -214,6 +216,13 @@ class MdfDialog(wx.Dialog):
 
         self.sizer_main.Add(sizer_choice1, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
         self.sizer_main.Add(sizer_choice2, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+    def opt06histogramMatch(self):
+        label = wx.StaticText(self, -1, "Histogram Match")
+        self.sizer_main.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+        label = wx.StaticText(self, -1, "No Parameter Change Supported")
+        self.sizer_main.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
 
     def opt07SpatialFilter(self):

@@ -66,6 +66,9 @@ class Controller:
         ''' Load left image '''
         self.loadLeft(self.dir + self.src)
 
+        ''' Load Reference image '''
+        self.loadRef(self.dir + self.ref)
+
         self.frame.Show(True)
 
     def onChoice(self, event):
@@ -90,6 +93,7 @@ class Controller:
             self.histogramEQ(self.dir + self.dst)
         elif self.choice == enum.OPT_06_HISTO_MAT:
             print enum.OPT_06_HISTO_MAT
+            self.histogramMatch(self.dir + self.dst)
         elif self.choice == enum.OPT_07_SPATIAL_FLT:
             print enum.OPT_07_SPATIAL_FLT
             self.spatialFilterRight(self.dir + self.dst)
@@ -223,6 +227,10 @@ class Controller:
                                 enum.DEFAULT_HEIGHT,
                                 self.dir + self.tmp)
 
+    def loadRef(self, path):
+        self.opt_06_ref_image = Image()
+        self.opt_06_ref_image.readContent(path)
+
     def reload(self):
         if self.dst_image is None:
             self.dst_image = Image()
@@ -271,6 +279,12 @@ class Controller:
                                    self.opt_05_selection,
                                    self.opt_05_resolution,
                                    path)
+
+    def histogramMatch(self, path):
+        self.reload()
+        self.dst_image.histogramMatch(self.src_image,
+                                      self.opt_06_ref_image,
+                                      path)
 
     def spatialFilterRight(self, path):
         self.reload()

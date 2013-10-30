@@ -755,6 +755,51 @@ class Image():
             self.spatialFilter_HighBoost(src_image, 3, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
 
+    def histogramMatch(self, src_image, ref_image, path):
+        width = src_image.width
+        height = src_image.height
+        src_pixel = src_image.pixel
+        ref_pixel = ref_image.pixel
+        dst_maxV = 0
+        src_prob = self.probability_count(width, height, src_pixel)
+        ref_prob = self.probability_count(width, height, ref_pixel)
+        dst_pixel = [[0 for w in xrange(width)] for h in xrange(height)]
+        num_pixel = width * height
+        hist = [0 for x in range(255)]
+        hist2 = [0 for x in range(255)]
+        hist_match = [0 for x in range(255)]
+        sumH = 0
+        sumH2 = 0
+
+        for x in range(255):
+            sumH += src_prob[x]
+            sumH2 += ref_prob[x]
+            hist[x] = int((sumH * 254 + 0.5) / num_pixel)
+            hist2[x] = int((sumH2 * 254 + 0.5) / num_pixel)
+        for x in range(255):
+            min_diff = 255
+            for y in range(255):
+                diff = hist2[y] - hist[x]
+                if diff < 0:
+                    diff = 0 - diff
+                if min_diff > diff:
+                    min_diff = diff
+                    hist_match[x] = y
+        for h in range(height):
+            for w in range(width):
+                dst_pixel[h][w] = hist_match[src_pixel[h][w]]
+                if dst_maxV < dst_pixel[h][w]:
+                    dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      width,
+                      height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+        pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
+
     def histogramEQ(self, src_image, selection, resolution, path):
         if selection == enum.HIST_EQ_GLOBAL:
             self.histogramEQ_Global(src_image, path)
