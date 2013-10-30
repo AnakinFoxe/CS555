@@ -31,6 +31,8 @@ class MdfDialog(wx.Dialog):
             self.opt03reduceGrayLevel()
         elif title == enum.OPT_04_TRANSFORM:
             self.opt04transform()
+        elif title == enum.OPT_05_HISTO_EQ:
+            self.opt05histogramEQ()
         elif title == enum.OPT_07_SPATIAL_FLT:
             self.opt07SpatialFilter()
         elif title == enum.OPT_08_BIT_PLANE:
@@ -180,6 +182,39 @@ class MdfDialog(wx.Dialog):
 
         self.sizer_main.Add(sizer_choice1, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
         self.sizer_main.Add(sizer_choice2, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+
+    def opt05histogramEQ(self):
+        label = wx.StaticText(self, -1, "Histogram Equalization")
+        self.sizer_main.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+        ''' Global '''
+        choice_title = wx.StaticBox(self, -1, "")
+        sizer_choice1 = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
+
+        self.opt_05_choice1 = wx.RadioButton(self, -1, enum.TRANS_LOG)
+
+        sizer_choice1.Add(self.opt_05_choice1, wx.ALIGN_LEFT)
+
+        ''' Local '''
+        choice_title = wx.StaticBox(self, -1, "")
+        sizer_choice2 = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
+
+        box = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(self, -1, "Resolution")
+        box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+        self.opt_05_text1 = wx.TextCtrl(self, -1, str(enum.DEFAULT_RESLTN_MIN), size=(80,-1))
+        box.Add(self.opt_05_text1, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+        sizer_choice2.Add(box, wx.ALIGN_LEFT)
+
+        self.opt_05_choice2 = wx.RadioButton(self, -1, enum.TRANS_POW)
+
+        sizer_choice2.Add(self.opt_05_choice2, wx.ALIGN_LEFT)
+
+        self.sizer_main.Add(sizer_choice1, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        self.sizer_main.Add(sizer_choice2, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
 
     def opt07SpatialFilter(self):
         label = wx.StaticText(self, -1, "Spatial Filter Operation")

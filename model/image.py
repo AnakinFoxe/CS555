@@ -284,6 +284,75 @@ class Image():
                       dst_pixel)
         self.writeContent(path)
 
+    def histogramEQ_Global(self, src_image, path):
+        pixel = src_image.pixel
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        prob = self.probability_count(dst_width, dst_height, pixel)
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        num_pixel = dst_width * dst_height
+        hist = [0 for w in range(255)]
+        sumH = 0
+        for x in range(255):
+            sumH += prob[x]
+            hist[x] = int((sumH * 254 + 0.5) / num_pixel)
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = hist[pixel[h][w]]
+                if dst_maxV < dst_pixel[h][w]:
+                    dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
+
+    def histogramEQ_Local(self, src_image, resolution, path):
+        sft = resolution / 2
+        pixel = src_image.pixel
+        dst_width = src_image.width
+        dst_height = src_image.height
+        dst_maxV = 0
+        prob = self.probability_count(dst_width, dst_height, pixel)
+        dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        num_pixel = (2*sft+1) * (2*sft+1)
+        for h in range(dst_height):
+            for w in range(dst_width):
+                square_mask = self.genSquareMask(dst_width, dst_height, h, w, pixel, sft)
+                prob = [0 for x in range(255)]
+                for x in range(len(square_mask)):
+                    prob[square_mask[x]] += 1
+                hist = []
+                hist_prob = []
+                hist_final = []
+                m = 0
+                for x in range(255):
+                    if prob[x] != 0:
+                        hist.append(x)
+                        hist_prob.append(prob[x])
+                        m += 1
+                sumH = 0
+                for x in range(m):
+                    sumH += hist_prob[x]
+                    hist_final.append(int((sumH * 254 + 0.5) / num_pixel))
+
+                for x in range(m):
+                    if hist[x] == pixel[h][w]:
+                        dst_pixel[h][w] = hist_final[x]
+                        if dst_maxV < dst_pixel[h][w]:
+                            dst_maxV = dst_pixel[h][w]
+
+        self.__init__(src_image.magic_word,
+                      dst_width,
+                      dst_height,
+                      dst_maxV,
+                      dst_pixel)
+        self.writeContent(path)
 
     def spatialFilter_Smooth(self, src_image, resolution, path):
         sft = int(resolution / 2)
@@ -684,6 +753,14 @@ class Image():
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
         elif selection == enum.SP_FLT_H_BOOST:
             self.spatialFilter_HighBoost(src_image, 3, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+
+    def histogramEQ(self, src_image, selection, resolution, path):
+        if selection == enum.HIST_EQ_GLOBAL:
+            self.histogramEQ_Global(src_image, path)
+            pub.sendMessage("RIGHT IMAGE CHANGED", path)
+        elif selection == enum.HIST_EQ_LOCAL:
+            self.histogramEQ_Local(src_image, resolution, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
 
     def transform(self, src_image, selection, c, gamma, path):

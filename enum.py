@@ -35,6 +35,9 @@ REDUCE_GL_MOST      = 'Reduce GL Most Sgn First '
 TRANS_LOG           = 'Log Transformation'
 TRANS_POW           = 'Power Transformation'
 
+HIST_EQ_GLOBAL      = 'Histogram EQ Global'
+HIST_EQ_LOCAL       = 'Histogram EQ Local'
+
 SP_FLT_SMOOTH       = 'Smooth Filter'
 SP_FLT_MEDIAN       = 'Median Filter'
 SP_FLT_LAPLACIAN    = 'Sharpening Laplacian'
@@ -63,6 +66,8 @@ DEFAULT_SIGN        = REDUCE_GL_LEAST # Least first
 DEFAULT_TRANS       = TRANS_LOG
 DEFAULT_C           = 2
 DEFAULT_GAMMA       = 1.5
+
+DEFAULT_HIST_EQ     = HIST_EQ_GLOBAL
 
 DEFAULT_RESLTN_MIN  = 3
 

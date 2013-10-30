@@ -37,6 +37,9 @@ class Controller:
     opt_04_c            = enum.DEFAULT_C
     opt_04_gamma        = enum.DEFAULT_GAMMA
 
+    opt_05_selection    = enum.DEFAULT_HIST_EQ
+    opt_05_resolution   = enum.DEFAULT_RESLTN_MIN
+
     opt_07_resolution   = enum.DEFAULT_RESLTN_MIN
     opt_07_selection    = enum.SP_FLT_SMOOTH
 
@@ -84,6 +87,7 @@ class Controller:
             self.transform(self.dir + self.dst)
         elif self.choice == enum.OPT_05_HISTO_EQ:
             print enum.OPT_05_HISTO_EQ
+            self.histogramEQ(self.dir + self.dst)
         elif self.choice == enum.OPT_06_HISTO_MAT:
             print enum.OPT_06_HISTO_MAT
         elif self.choice == enum.OPT_07_SPATIAL_FLT:
@@ -149,6 +153,12 @@ class Controller:
                         print("%s %d %d" % (self.opt_04_selection,
                                         self.opt_04_c,
                                         self.opt_04_gamma))
+                elif self.choice == enum.OPT_05_HISTO_EQ:
+                    if dlg.opt_05_choice1.GetValue() is True:
+                        self.opt_05_selection = enum.HIST_EQ_GLOBAL
+                    elif dlg.opt_05_choice2.GetValue() is True:
+                        self.opt_05_selection = enum.HIST_EQ_LOCAL
+                        self.opt_05_resolution = int(dlg.opt_05_text1.GetValue())
                 elif self.choice == enum.OPT_07_SPATIAL_FLT:
                     self.opt_07_resolution = int(dlg.opt_07_text1.GetValue())
                     if dlg.opt_07_choice1.GetValue() is True:
@@ -254,6 +264,13 @@ class Controller:
                                  self.opt_04_c,
                                  self.opt_04_gamma,
                                  path)
+
+    def histogramEQ(self, path):
+        self.reload()
+        self.dst_image.histogramEQ(self.src_image,
+                                   self.opt_05_selection,
+                                   self.opt_05_resolution,
+                                   path)
 
     def spatialFilterRight(self, path):
         self.reload()
