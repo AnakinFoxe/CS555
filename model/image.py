@@ -7,6 +7,10 @@ import math
 
 from wx.lib.pubsub import Publisher as pub
 
+''' Temporarily put them here '''
+"""import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt"""
+
 class Image():
 
     magic_word  = 0
@@ -408,7 +412,8 @@ class Image():
                       dst_pixel)
         self.writeContent(path)
 
-    def spatialFilter_Laplacian(self, src_image, resolution, path):
+    def spatialFilter_Laplacian(self, src_image, lap, path):
+        resolution = 3
         sft = int(resolution / 2)
         dst_width = src_image.width
         dst_height = src_image.height
@@ -421,18 +426,22 @@ class Image():
         flt_max = 0
         flt_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
-        lap1 = [0, 1, 0,
-                1,-4, 1,
-                0, 1, 0]
-        lap2 = [1, 1, 1,
-                1,-8, 1,
-                1, 1, 1]
-        lap3 = [0,-1, 0,
-                -1,4,-1,
-                0,-1, 0]
-        lap4 = [-1,-1,-1,
-                -1, 8,-1,
-                -1,-1,-1]
+        if lap == 1:
+            laplacian = [0, 1, 0,
+                         1,-4, 1,
+                         0, 1, 0]
+        elif lap == 2:
+            laplacian = [1, 1, 1,
+                         1,-8, 1,
+                         1, 1, 1]
+        elif lap == 3:
+            laplacian = [0,-1, 0,
+                         -1,4,-1,
+                         0,-1, 0]
+        else:
+            laplacian = [-1,-1,-1,
+                         -1, 8,-1,
+                         -1,-1,-1]
 
         ''' Generate Filter '''
         for h in range(dst_height):
@@ -443,7 +452,7 @@ class Image():
                                                  src_image.pixel, sft)
                 pixel_value = 0
                 for x in range(len(square_mask)):
-                    pixel_value += lap4[x] * square_mask[x]
+                    pixel_value += laplacian[x] * square_mask[x]
                 flt_pixel[h][w] = pixel_value
                 if flt_max < flt_pixel[h][w]: flt_max = flt_pixel[h][w]
                 if flt_min > flt_pixel[h][w]: flt_min = flt_pixel[h][w]
@@ -475,18 +484,21 @@ class Image():
 
         self.writeContent(path)
 
-    def spatialFilter_HighBoost(self, src_image, resolution, path):
+    def spatialFilter_HighBoost(self, src_image, k, path):
+        resolution = 3
         sft = int(resolution / 2)
         dst_width = src_image.width
         dst_height = src_image.height
+        dst_min = enum.MAX_GRAY_LVL
+        dst_max = 0
         dst_maxV = 0
         dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
-        gaussian = [1, 2, 1,
-                    2, 4, 2,
-                    1, 2, 1]
-        k = 2
+        hb  = [ -1, -1, -1,
+                -1,8+k, -1,
+                -1, -1, -1]
 
+        ''' Apply HB '''
         for h in range(dst_height):
             for w in range(dst_width):
                 square_mask = self.genSquareMask(dst_width,
@@ -495,9 +507,16 @@ class Image():
                                                  src_image.pixel, sft)
                 pixel_value = 0
                 for x in range(len(square_mask)):
-                    pixel_value += gaussian[x] * square_mask[x]
-                pixel_value /= 16
-                dst_pixel[h][w] = src_image.pixel[h][w] * (k + 1) - k * pixel_value
+                    pixel_value += hb[x] * square_mask[x]
+                dst_pixel[h][w] = pixel_value
+                if dst_min > dst_pixel[h][w]: dst_min = dst_pixel[h][w]
+                if dst_max < dst_pixel[h][w]: dst_max = dst_pixel[h][w]
+
+        ''' Scale '''
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = int((dst_pixel[h][w] - dst_min)
+                                      * (float(enum.MAX_GRAY_LVL) / (dst_max - dst_min)))
                 if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
 
         self.__init__(src_image.magic_word,
@@ -762,6 +781,16 @@ class Image():
                 dst_pixel[h][w] = src_image.pixel[h][w] & bits
                 if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
 
+        """hist_prob = self.probability_count(dst_width, dst_height, dst_pixel)
+        n, bins, patches = plt.hist(hist_prob, 255, normed=1, facecolor='green', alpha=0.5)
+        y = [0 for x in range(256)]
+        plt.plot(bins, y, 'r--')
+        plt.xlabel('Smarts')
+        plt.ylabel('Probability')
+        plt.title(r'Histogram of IQ: $\mu=100$, $\sigma=15$')
+        plt.subplots_adjust(left=0.15)
+        plt.show()"""
+
         self.__init__(src_image.magic_word,
                       dst_width,
                       dst_height,
@@ -771,7 +800,7 @@ class Image():
         pub.sendMessage("RIGHT IMAGE CHANGED", path)
 
 
-    def spatialFilter(self, src_image, selection, resolution, path):
+    def spatialFilter(self, src_image, selection, resolution, lap, k, path):
         if selection == enum.SP_FLT_SMOOTH:
             self.spatialFilter_Smooth(src_image, resolution, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
@@ -779,10 +808,10 @@ class Image():
             self.spatialFilter_Median(src_image, resolution, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
         elif selection == enum.SP_FLT_LAPLACIAN:
-            self.spatialFilter_Laplacian(src_image, 3, path)
+            self.spatialFilter_Laplacian(src_image, lap, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
         elif selection == enum.SP_FLT_H_BOOST:
-            self.spatialFilter_HighBoost(src_image, 3, path)
+            self.spatialFilter_HighBoost(src_image, k, path)
             pub.sendMessage("RIGHT IMAGE CHANGED", path)
 
     def histogramMatch(self, src_image, ref_image, path):

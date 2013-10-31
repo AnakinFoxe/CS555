@@ -229,28 +229,57 @@ class MdfDialog(wx.Dialog):
         label = wx.StaticText(self, -1, "Spatial Filter Operation")
         self.sizer_main.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
+        #self.sizer_main.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        ''' Sizer Choice 1 '''
+        choice_title = wx.StaticBox(self, -1, "")
+        sizer_choice1 = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
+
         box = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(self, -1, "Resolution")
         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
         self.opt_07_text1 = wx.TextCtrl(self, -1, str(enum.DEFAULT_RESLTN_MIN), size=(80,-1))
         box.Add(self.opt_07_text1, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
 
-        self.sizer_main.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-
-        choice_title = wx.StaticBox(self, -1, "")
-        sizer_choice = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
-
         self.opt_07_choice1 = wx.RadioButton(self, -1, enum.SP_FLT_SMOOTH)
         self.opt_07_choice2 = wx.RadioButton(self, -1, enum.SP_FLT_MEDIAN)
+
+        sizer_choice1.Add(box, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        sizer_choice1.Add(self.opt_07_choice1, wx.ALIGN_LEFT)
+        sizer_choice1.Add(self.opt_07_choice2, wx.ALIGN_LEFT)
+
+        ''' Sizer Choice 2 '''
+        choice_title = wx.StaticBox(self, -1, "")
+        sizer_choice2 = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
+
+        box = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(self, -1, "Laplacian")
+        box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+        self.opt_07_text2 = wx.TextCtrl(self, -1, str(enum.DEFAULT_LAPLACIAN), size=(80,-1))
+        box.Add(self.opt_07_text2, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+
         self.opt_07_choice3 = wx.RadioButton(self, -1, enum.SP_FLT_LAPLACIAN)
+
+        sizer_choice2.Add(box, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        sizer_choice2.Add(self.opt_07_choice3, wx.ALIGN_LEFT)
+
+        ''' Sizer Choice 3 '''
+        choice_title = wx.StaticBox(self, -1, "")
+        sizer_choice3 = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
+
+        box = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(self, -1, "k")
+        box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+        self.opt_07_text3 = wx.TextCtrl(self, -1, str(enum.DEFAULT_K), size=(80,-1))
+        box.Add(self.opt_07_text3, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+
         self.opt_07_choice4 = wx.RadioButton(self, -1, enum.SP_FLT_H_BOOST)
 
-        sizer_choice.Add(self.opt_07_choice1, wx.ALIGN_LEFT)
-        sizer_choice.Add(self.opt_07_choice2, wx.ALIGN_LEFT)
-        sizer_choice.Add(self.opt_07_choice3, wx.ALIGN_LEFT)
-        sizer_choice.Add(self.opt_07_choice4, wx.ALIGN_LEFT)
+        sizer_choice3.Add(box, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        sizer_choice3.Add(self.opt_07_choice4, wx.ALIGN_LEFT)
 
-        self.sizer_main.Add(sizer_choice, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        self.sizer_main.Add(sizer_choice1, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        self.sizer_main.Add(sizer_choice2, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        self.sizer_main.Add(sizer_choice3, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
     def opt08BitPlane(self):
         label = wx.StaticText(self, -1, "Bit Plane Operation")

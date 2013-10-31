@@ -43,6 +43,8 @@ class Controller:
 
     opt_07_resolution   = enum.DEFAULT_RESLTN_MIN
     opt_07_selection    = enum.SP_FLT_SMOOTH
+    opt_07_laplacian    = enum.DEFAULT_LAPLACIAN
+    opt_07_k            = enum.DEFAULT_K
 
     opt_08_bits         = 64 # top 3 set to zero
 
@@ -165,14 +167,17 @@ class Controller:
                         self.opt_05_selection = enum.HIST_EQ_LOCAL
                         self.opt_05_resolution = int(dlg.opt_05_text1.GetValue())
                 elif self.choice == enum.OPT_07_SPATIAL_FLT:
-                    self.opt_07_resolution = int(dlg.opt_07_text1.GetValue())
                     if dlg.opt_07_choice1.GetValue() is True:
+                        self.opt_07_resolution = int(dlg.opt_07_text1.GetValue())
                         self.opt_07_selection = enum.SP_FLT_SMOOTH
                     elif dlg.opt_07_choice2.GetValue() is True:
+                        self.opt_07_resolution = int(dlg.opt_07_text1.GetValue())
                         self.opt_07_selection = enum.SP_FLT_MEDIAN
                     elif dlg.opt_07_choice3.GetValue() is True:
+                        self.opt_07_laplacian = int(dlg.opt_07_text2.GetValue())
                         self.opt_07_selection = enum.SP_FLT_LAPLACIAN
                     elif dlg.opt_07_choice4.GetValue() is True:
+                        self.opt_07_k = int(dlg.opt_07_text3.GetValue())
                         self.opt_07_selection = enum.SP_FLT_H_BOOST
                     print self.opt_07_selection
                 elif self.choice == enum.OPT_08_BIT_PLANE:
@@ -292,6 +297,8 @@ class Controller:
         self.dst_image.spatialFilter(self.dst_image,
                                      self.opt_07_selection,
                                      self.opt_07_resolution,
+                                     self.opt_07_laplacian,
+                                     self.opt_07_k,
                                      path)
 
     def bitPlaneRight(self, path):
