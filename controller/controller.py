@@ -13,8 +13,9 @@ from view.mdfDialog import MdfDialog
 from wx.lib.pubsub import Publisher as pub
 
 class Controller:
-    dir = 'C:\Users\Anakin\Documents\GitHub\CS555\\'
+    dir = 'C:\Users\Anakin\Documents\GitHub\CS555\image\\'
     src = 'src_ascii.pgm'
+    #src = 'image\moon_ascii.pgm'
     dst = 'dst.pgm'
     tmp = 'tmp.pgm'
     tmp2 = 'tmp2.pgm'

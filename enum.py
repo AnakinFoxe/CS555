@@ -5,6 +5,8 @@
 WINDOW_TITLE        = "Digital Image Processing (CS 555)"
 WINDOW_SIZE         = (1000, 740)
 
+MAX_GRAY_LVL        = 255
+
 OPT_01_SHRINK       = 'Shrink'
 OPT_02_ZOOM_BACK    = 'Zoom Back'
 OPT_03_REDUCE_GL    = 'Reduce Gray Level'
@@ -56,6 +58,8 @@ RESTORE_ALPHA_TRIM  = 'Alpha-trimmed Mean'
 
 DEFAULT_WIDTH       = 480
 DEFAULT_HEIGHT      = 640
+#DEFAULT_WIDTH       = 464
+#DEFAULT_HEIGHT      = 538
 
 DEFAULT_WIDTH_MIN   = 60
 DEFAULT_HEIGHT_MIN  = 80

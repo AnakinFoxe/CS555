@@ -80,7 +80,7 @@ class Image():
         return square_mask
 
     def probability_count(self, width, height, pixel):
-        prob = [0 for w in range(255)]
+        prob = [0 for w in range(enum.MAX_GRAY_LVL+1)]
         for h in range(height):
             for w in range(width):
                 prob[pixel[h][w]] += 1
@@ -253,7 +253,8 @@ class Image():
 
         for h in range(dst_height):
             for w in range(dst_width):
-                dst_pixel[h][w] = int(c * math.log(1 + src_pixel[h][w], 2) * 255 / math.log(256, 2))
+                dst_pixel[h][w] = int(c * math.log(1 + src_pixel[h][w], 2)
+                                      * enum.MAX_GRAY_LVL / math.log(enum.MAX_GRAY_LVL, 2))
                 if dst_maxV < dst_pixel[h][w]:
                     dst_maxV = dst_pixel[h][w]
 
@@ -273,7 +274,8 @@ class Image():
 
         for h in range(dst_height):
             for w in range(dst_width):
-                dst_pixel[h][w] = int(c * math.pow(src_pixel[h][w], gamma) * 255 / math.pow(255, gamma))
+                dst_pixel[h][w] = int(c * math.pow(src_pixel[h][w], gamma)
+                                      * enum.MAX_GRAY_LVL / math.pow(enum.MAX_GRAY_LVL, gamma))
                 if dst_maxV < dst_pixel[h][w]:
                     dst_maxV = dst_pixel[h][w]
 
@@ -293,11 +295,11 @@ class Image():
         dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
         num_pixel = dst_width * dst_height
-        hist = [0 for w in range(255)]
+        hist = [0 for w in range(enum.MAX_GRAY_LVL+1)]
         sumH = 0
-        for x in range(255):
+        for x in range(enum.MAX_GRAY_LVL+1):
             sumH += prob[x]
-            hist[x] = int((sumH * 254 + 0.5) / num_pixel)
+            hist[x] = int((sumH * (enum.MAX_GRAY_LVL-1) + 0.5) / num_pixel)
         for h in range(dst_height):
             for w in range(dst_width):
                 dst_pixel[h][w] = hist[pixel[h][w]]
@@ -324,14 +326,14 @@ class Image():
         for h in range(dst_height):
             for w in range(dst_width):
                 square_mask = self.genSquareMask(dst_width, dst_height, h, w, pixel, sft)
-                prob = [0 for x in range(255)]
+                prob = [0 for x in range(enum.MAX_GRAY_LVL+1)]
                 for x in range(len(square_mask)):
                     prob[square_mask[x]] += 1
                 hist = []
                 hist_prob = []
                 hist_final = []
                 m = 0
-                for x in range(255):
+                for x in range(enum.MAX_GRAY_LVL+1):
                     if prob[x] != 0:
                         hist.append(x)
                         hist_prob.append(prob[x])
@@ -410,8 +412,14 @@ class Image():
         sft = int(resolution / 2)
         dst_width = src_image.width
         dst_height = src_image.height
+        dst_max = 0
+        dst_min = enum.MAX_GRAY_LVL
         dst_maxV = 0
         dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
+
+        flt_min = enum.MAX_GRAY_LVL
+        flt_max = 0
+        flt_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
         lap1 = [0, 1, 0,
                 1,-4, 1,
@@ -426,6 +434,7 @@ class Image():
                 -1, 8,-1,
                 -1,-1,-1]
 
+        ''' Generate Filter '''
         for h in range(dst_height):
             for w in range(dst_width):
                 square_mask = self.genSquareMask(dst_width,
@@ -435,14 +444,35 @@ class Image():
                 pixel_value = 0
                 for x in range(len(square_mask)):
                     pixel_value += lap4[x] * square_mask[x]
-                dst_pixel[h][w] = pixel_value
-                if dst_maxV < pixel_value: dst_maxV = pixel_value
+                flt_pixel[h][w] = pixel_value
+                if flt_max < flt_pixel[h][w]: flt_max = flt_pixel[h][w]
+                if flt_min > flt_pixel[h][w]: flt_min = flt_pixel[h][w]
+
+        ''' Scale Filter and Apply to Origin image'''
+        for h in range(dst_height):
+            for w in range(dst_width):
+                flt_pixel[h][w] = ((flt_pixel[h][w] - flt_min)
+                                   * (float(enum.MAX_GRAY_LVL) / (flt_max - flt_min)))
+                dst_pixel[h][w] = int(src_image.pixel[h][w] + flt_pixel[h][w])
+                if dst_max < dst_pixel[h][w]: dst_max = dst_pixel[h][w]
+                if dst_min > dst_pixel[h][w]: dst_min = dst_pixel[h][w]
+
+                if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
+
+        ''' Scale final image '''
+        dst_maxV = 0
+        for h in range(dst_height):
+            for w in range(dst_width):
+                dst_pixel[h][w] = int((dst_pixel[h][w] - dst_min)
+                                      * (float(enum.MAX_GRAY_LVL) / (dst_max - dst_min)))
+                if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
 
         self.__init__(src_image.magic_word,
                       dst_width,
                       dst_height,
                       dst_maxV,
                       dst_pixel)
+
         self.writeContent(path)
 
     def spatialFilter_HighBoost(self, src_image, resolution, path):
@@ -765,20 +795,20 @@ class Image():
         ref_prob = self.probability_count(width, height, ref_pixel)
         dst_pixel = [[0 for w in xrange(width)] for h in xrange(height)]
         num_pixel = width * height
-        hist = [0 for x in range(255)]
-        hist2 = [0 for x in range(255)]
-        hist_match = [0 for x in range(255)]
+        hist = [0 for x in range(enum.MAX_GRAY_LVL+1)]
+        hist2 = [0 for x in range(enum.MAX_GRAY_LVL+1)]
+        hist_match = [0 for x in range(enum.MAX_GRAY_LVL+1)]
         sumH = 0
         sumH2 = 0
 
-        for x in range(255):
+        for x in range(enum.MAX_GRAY_LVL+1):
             sumH += src_prob[x]
             sumH2 += ref_prob[x]
             hist[x] = int((sumH * 254 + 0.5) / num_pixel)
             hist2[x] = int((sumH2 * 254 + 0.5) / num_pixel)
-        for x in range(255):
-            min_diff = 255
-            for y in range(255):
+        for x in range(enum.MAX_GRAY_LVL+1):
+            min_diff = enum.MAX_GRAY_LVL
+            for y in range(enum.MAX_GRAY_LVL+1):
                 diff = hist2[y] - hist[x]
                 if diff < 0:
                     diff = 0 - diff
