@@ -56,10 +56,15 @@ RESTORE_ALPHA_TRIM  = 'Alpha-trimmed Mean'
 
 
 
-DEFAULT_WIDTH       = 480
-DEFAULT_HEIGHT      = 640
-#DEFAULT_WIDTH       = 464
-#DEFAULT_HEIGHT      = 538
+#DEFAULT_WIDTH       = 480
+#DEFAULT_HEIGHT      = 640
+#DEFAULT_WIDTH       = 464    # moon
+#DEFAULT_HEIGHT      = 538    # moon
+
+DEFAULT_WIDTH       = 464   # EE board 1
+DEFAULT_HEIGHT      = 448   # EE board 1
+#DEFAULT_WIDTH       = 455   # EE board 2
+#DEFAULT_HEIGHT      = 440   # EE board 2
 
 DEFAULT_WIDTH_MIN   = 60
 DEFAULT_HEIGHT_MIN  = 80

@@ -8,8 +8,8 @@ import math
 from wx.lib.pubsub import Publisher as pub
 
 ''' Temporarily put them here '''
-"""import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt"""
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
 
 class Image():
 
@@ -304,11 +304,21 @@ class Image():
         for x in range(enum.MAX_GRAY_LVL+1):
             sumH += prob[x]
             hist[x] = int((sumH * (enum.MAX_GRAY_LVL-1) + 0.5) / num_pixel)
+        pixel_1d = []
         for h in range(dst_height):
             for w in range(dst_width):
                 dst_pixel[h][w] = hist[pixel[h][w]]
                 if dst_maxV < dst_pixel[h][w]:
                     dst_maxV = dst_pixel[h][w]
+                pixel_1d.append(dst_pixel[h][w])
+
+        ''' Draw Histogram '''
+        n, bins, patches = plt.hist(pixel_1d, 256, normed=0, facecolor='green', alpha=0.5)
+        plt.xlabel('Gray Level')
+        plt.ylabel('Frequency')
+        plt.title(r'Histogram')
+        plt.subplots_adjust(left=0.15)
+        plt.show()
 
         self.__init__(src_image.magic_word,
                       dst_width,
@@ -776,20 +786,21 @@ class Image():
         dst_maxV = 0
         dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
+        pixel_1d = []
         for h in range(dst_height):
             for w in range(dst_width):
                 dst_pixel[h][w] = src_image.pixel[h][w] & bits
                 if dst_maxV < dst_pixel[h][w]: dst_maxV = dst_pixel[h][w]
 
-        """hist_prob = self.probability_count(dst_width, dst_height, dst_pixel)
-        n, bins, patches = plt.hist(hist_prob, 255, normed=1, facecolor='green', alpha=0.5)
-        y = [0 for x in range(256)]
-        plt.plot(bins, y, 'r--')
-        plt.xlabel('Smarts')
-        plt.ylabel('Probability')
-        plt.title(r'Histogram of IQ: $\mu=100$, $\sigma=15$')
+                pixel_1d.append(dst_pixel[h][w])
+
+        ''' Draw Histogram '''
+        n, bins, patches = plt.hist(pixel_1d, 256, normed=0, facecolor='green', alpha=0.5)
+        plt.xlabel('Gray Level')
+        plt.ylabel('Frequency')
+        plt.title(r'Histogram')
         plt.subplots_adjust(left=0.15)
-        plt.show()"""
+        plt.show()
 
         self.__init__(src_image.magic_word,
                       dst_width,

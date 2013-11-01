@@ -194,7 +194,7 @@ class MdfDialog(wx.Dialog):
         choice_title = wx.StaticBox(self, -1, "")
         sizer_choice1 = wx.StaticBoxSizer(choice_title, wx.VERTICAL)
 
-        self.opt_05_choice1 = wx.RadioButton(self, -1, enum.TRANS_LOG)
+        self.opt_05_choice1 = wx.RadioButton(self, -1, enum.HIST_EQ_GLOBAL)
 
         sizer_choice1.Add(self.opt_05_choice1, wx.ALIGN_LEFT)
 
@@ -210,7 +210,7 @@ class MdfDialog(wx.Dialog):
 
         sizer_choice2.Add(box, wx.ALIGN_LEFT)
 
-        self.opt_05_choice2 = wx.RadioButton(self, -1, enum.TRANS_POW)
+        self.opt_05_choice2 = wx.RadioButton(self, -1, enum.HIST_EQ_LOCAL)
 
         sizer_choice2.Add(self.opt_05_choice2, wx.ALIGN_LEFT)
 

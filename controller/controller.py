@@ -14,8 +14,16 @@ from wx.lib.pubsub import Publisher as pub
 
 class Controller:
     dir = 'C:\Users\Anakin\Documents\GitHub\CS555\image\\'
-    src = 'src_ascii.pgm'
-    #src = 'image\moon_ascii.pgm'
+    #src = 'src_ascii.pgm'
+    #src = 'moon_ascii.pgm'
+    #src = 'Fig0507_a__ckt_board_orig__tif_ascii.pgm'
+    src = 'Fig0507_b__ckt_board_gauss_var_400__tif_ascii.pgm'
+    #src = 'Fig0508_a__circuit_board_pepper_prob_pt1__tif_ascii.pgm'
+    #src = 'Fig0508_b__circuit_board_salt_prob_pt1__tif_ascii.pgm'
+    #src = 'Fig0510_a__ckt_board_saltpep_prob_pt05__tif_ascii.pgm'
+    #src = 'Fig0512_a__ckt_uniform_var_800__tif_ascii.pgm'
+    #src = 'Fig0512_b__ckt_uniform_plus_saltpepr_prob_pt1__tif_ascii.pgm'
+    #src = 'Fig0513_a__ckt_gaussian_var_1000_mean_0__tif_ascii.pgm'
     dst = 'dst.pgm'
     tmp = 'tmp.pgm'
     tmp2 = 'tmp2.pgm'
@@ -46,7 +54,7 @@ class Controller:
     opt_07_laplacian    = enum.DEFAULT_LAPLACIAN
     opt_07_k            = enum.DEFAULT_K
 
-    opt_08_bits         = 64 # top 3 set to zero
+    opt_08_bits         = 64
 
     opt_09_resolution   = enum.DEFAULT_RESLTN_MIN
     opt_09_selection    = enum.RESTORE_ARITHMETIC
