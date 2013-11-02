@@ -13,16 +13,16 @@ from view.mdfDialog import MdfDialog
 from wx.lib.pubsub import Publisher as pub
 
 class Controller:
-    dir = 'C:\Users\Anakin\Documents\GitHub\CS555\image\\'
+    dir = 'C:\Users\Xing\git\CS555\image\\'
     #src = 'src_ascii.pgm'
     #src = 'moon_ascii.pgm'
     #src = 'Fig0507_a__ckt_board_orig__tif_ascii.pgm'
-    src = 'Fig0507_b__ckt_board_gauss_var_400__tif_ascii.pgm'
+    #src = 'Fig0507_b__ckt_board_gauss_var_400__tif_ascii.pgm'
     #src = 'Fig0508_a__circuit_board_pepper_prob_pt1__tif_ascii.pgm'
     #src = 'Fig0508_b__circuit_board_salt_prob_pt1__tif_ascii.pgm'
     #src = 'Fig0510_a__ckt_board_saltpep_prob_pt05__tif_ascii.pgm'
     #src = 'Fig0512_a__ckt_uniform_var_800__tif_ascii.pgm'
-    #src = 'Fig0512_b__ckt_uniform_plus_saltpepr_prob_pt1__tif_ascii.pgm'
+    src = 'Fig0512_b__ckt_uniform_plus_saltpepr_prob_pt1__tif_ascii.pgm'
     #src = 'Fig0513_a__ckt_gaussian_var_1000_mean_0__tif_ascii.pgm'
     dst = 'dst.pgm'
     tmp = 'tmp.pgm'

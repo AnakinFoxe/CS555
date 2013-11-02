@@ -1,5 +1,6 @@
 '''
-@author: Anakin
+Written in Python 2.7+ with wxPython
+@author: HU Xing (BID# 010360662)
 '''
 
 import enum
@@ -624,7 +625,7 @@ class Image():
         dst_maxV = 0
         dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
-        q = 1
+        q = -1.5
 
         for h in range(dst_height):
             for w in range(dst_width):
@@ -731,7 +732,7 @@ class Image():
         dst_maxV = 0
         dst_pixel = [[0 for w in xrange(dst_width)] for h in xrange(dst_height)]
 
-        d = 2
+        d = 5
 
         for h in range(dst_height):
             for w in range(dst_width):
